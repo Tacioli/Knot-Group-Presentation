@@ -31,12 +31,16 @@
 <div id="id_div_container" class="div_container">
     <div id="ponto"></div>
 
-    <div id="myDIV" style="visibility: hidden;">    
-        Instruções:
-        1. Desenhe o diagrama do nó com cliques do botão esquerdo do mouse.
-        2. Mova o mouse até o primeiro ponto para fechar o diagrama.
-        3. Escolha quais arcos passam por cima em cada cruzamento.
-        4. Clique em "Group Presentation" para calcular a apresentação do grupo do nó.
+   <div id="myDIV" style="visibility: hidden; font-size: 15px; padding: 15px; line-height: 1.5;">    
+        <strong>Instructions:</strong><br>
+        1. Sketch the knot diagram with left mouse clicks.<br>
+        2. Move the mouse to the first drawn point to close the diagram.<br>
+        3. The system will clear a small region at each intersection. Choose which arc passes over.<br>
+        4. Click the "Group Presentation" button to calculate the knot invariants.<br><br>
+
+        <strong>How to read the Group Presentation:</strong><br>
+        In Knot Theory, each continuous arc of the diagram (the segment of the curve going from one undercrossing to the next undercrossing) corresponds to a <strong>generator</strong> of the fundamental group, denoted by <em>x<sub>i</sub></em>.<br> 
+        The numbering of the generators (x<sub>1</sub>, x<sub>2</sub>, ..., x<sub>n</sub>) follows the exact order in which the segments were drawn on the plane. The algorithm extracts the relations crossing by crossing using the <em>Wirtinger Presentation</em>.
     </div>
     
     <canvas id="canvas_drawing" width="1155" height="650"></canvas>
