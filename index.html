@@ -5,12 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Knot Group Presentation via PyScript</title>
     
+    <!-- Bootstrap -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     
+    <!-- PyScript / Pyodide -->
     <script src="https://cdn.jsdelivr.net/pyodide/v0.21.3/full/pyodide.js"></script>
     <link rel="stylesheet" href="https://pyscript.net/releases/2023.03.1/pyscript.css" />
     <script defer src="https://pyscript.net/releases/2023.03.1/pyscript.js"></script>
 
+    <!-- MathJax para renderizar LaTeX -->
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
@@ -73,25 +76,60 @@
 </div>
 
 <script>
-let canvasEl = document.querySelector('#canvas_drawing');
-let ctx = canvasEl.getContext('2d');
-ctx.fillStyle='blue';
-let OK=0;
-xc = canvasEl.clientWidth;
-yc = canvasEl.clientHeight;
+// =========================================================================
+// DECLARAÇÃO DE TODAS AS VARIÁVEIS GLOBAIS NO TOPO PARA EVITAR ERROS
+// =========================================================================
+var canvasEl = document.querySelector('#canvas_drawing');
+var ctx = canvasEl.getContext('2d');
+ctx.fillStyle = 'blue';
+var xc = canvasEl.clientWidth;
+var yc = canvasEl.clientHeight;
 
+var OK = 0;
+var VD = [];
+var VD2 = [];
+var VecUpDown = new Array(6);
+var VecIndex_I = [];
+var VecIndexUp = [];
+var dNC;
+var k = -1;
+var cont = 0;
+var KnotMatrixAux = [];
+var KnotMatrix = [];
+var i = 0, m = 0, newKnot = 1, z1, w1, u1, v1, x1, y1, x11, y11;
+var Sx = [], Sy = [], Cx = [], Cy = [], Cxy = [];
+var knot_closed = 0;
+var Index_v = [], Index_op = [];
+var ChoosesUp = [];
+var ep, r, p_i, xi, yi, Xi, Yi, xii, yii, Xii, Yii;
+var xa, ya, ui_x, ui_y, wj_x, wj_y, sinal;
+
+var dialogEl = document.getElementById("Dialog_closeKnot");
+var pontoEl = document.getElementById("ponto");
+
+// Inicialização segura dos botões
+function disabled_button(id_button, true_or_false) {
+    document.getElementById(id_button).disabled = true_or_false;
+}
+disabled_button("btn_Yes", true);
+disabled_button("btn_No", true);
+disabled_button("btn_GroupPresentation", true);
+pontoEl.style.visibility = 'hidden';
+
+// =========================================================================
+// EVENTOS DO MOUSE
+// =========================================================================
 canvasEl.addEventListener('mousemove', (MouseM) => {
-    xM = MouseM.offsetX;
-    yM = MouseM.offsetY;
+    let xM = MouseM.offsetX;
+    let yM = MouseM.offsetY;
     document.getElementById("text_coord_xy").innerHTML = "(x,y)= (" +(xM - xc / 2 ) +"," + (-yM +yc /2 ) +")";
-    if (OK==0){
-        if (m>2){
-            if (((Sx[0]-7 < xM) && (xM < Sx[0]+7)) && ((Sy[0]-7 < yM) && (yM < Sy[0]+7))){
-                Dialog_closeKnot.style.left = Sx[0] + "px";
-                Dialog_closeKnot.style.top = Sy[0] + "px";
-                window.Dialog_closeKnot.showModal();
-                OK = 1;
-            }
+    
+    if (OK == 0 && m > 2) {
+        if (((Sx[0]-7 < xM) && (xM < Sx[0]+7)) && ((Sy[0]-7 < yM) && (yM < Sy[0]+7))){
+            dialogEl.style.left = Sx[0] + "px";
+            dialogEl.style.top = Sy[0] + "px";
+            dialogEl.showModal();
+            OK = 1;
         }
     }
 });
@@ -99,8 +137,9 @@ canvasEl.addEventListener('mousemove', (MouseM) => {
 canvasEl.addEventListener('click', (MouseC) => {
     u1 = MouseC.offsetX;
     v1 = MouseC.offsetY;
+    
     if (newKnot == 1) {
-        m = m+1;
+        m = m + 1;
         x1 = MouseC.offsetX;
         y1 = MouseC.offsetY;
         z1 = x1 - xc / 2;
@@ -109,8 +148,8 @@ canvasEl.addEventListener('click', (MouseC) => {
         Sy.push(y1);
         Cx.push(z1);
         Cy.push(w1);
-        Cxy.push([z1,w1]);
-        ctx.fillStyle='blue';
+        Cxy.push([z1, w1]);
+        ctx.fillStyle = 'blue';
         ctx.font = "20px serif";
         ctx.fillText(m, x1 + 5, y1 + 5);
         ctx.lineWidth = 2;
@@ -125,30 +164,31 @@ canvasEl.addEventListener('click', (MouseC) => {
         x11 = x1;
         y11 = y1;
     }
-    if (knot_closed==1) {
-        for(let i = 0; i < VD2.length; i++){
-            ep=Math.pow(VD2[i][5]-u1,2)+Math.pow(VD2[i][6]-v1,2);
-            ep=Math.pow(ep,1/2);
+    
+    if (knot_closed == 1) {
+        for (let j = 0; j < VD2.length; j++){
+            ep = Math.pow(VD2[j][5]-u1, 2) + Math.pow(VD2[j][6]-v1, 2);
+            ep = Math.pow(ep, 1/2);
             if (ep < 5) {
                 document.getElementById("demo").innerHTML = "";
-                if (VecUpDown[Index_v[i]][0] == VecUpDown[Index_v[i]][2] ) {
-                    VecUpDown[Index_v[i]][2] = VecUpDown[Index_v[i]][1];
-                    VecUpDown[Index_op[i]][2] = VecUpDown[Index_v[i]][1];
-                    VecIndexUp[i]=VecUpDown[Index_v[i]][1];
+                if (VecUpDown[Index_v[j]][0] == VecUpDown[Index_v[j]][2] ) {
+                    VecUpDown[Index_v[j]][2] = VecUpDown[Index_v[j]][1];
+                    VecUpDown[Index_op[j]][2] = VecUpDown[Index_v[j]][1];
+                    VecIndexUp[j] = VecUpDown[Index_v[j]][1];
                     r = 8;
                     ctx.fillStyle='#ffe4c4';
                     ctx.beginPath();
-                    ctx.ellipse(VD2[i][5],VD2[i][6], r, r, Math.PI/4, 0, 2*Math.PI);
+                    ctx.ellipse(VD2[j][5], VD2[j][6], r, r, Math.PI/4, 0, 2*Math.PI);
                     ctx.fill();
 
-                    p_i = IntersectCircleLine(VD2[i][3], VD2[i][4], r, VD2[i][11], VD2[i][12], VD2[i][13], VD2[i][14]);
-                    xi = VD2[i][11] + p_i[0] * (VD2[i][13] - VD2[i][11]);
-                    yi = VD2[i][12] + p_i[0] * (VD2[i][14] - VD2[i][12]);
+                    p_i = IntersectCircleLine(VD2[j][3], VD2[j][4], r, VD2[j][11], VD2[j][12], VD2[j][13], VD2[j][14]);
+                    xi = VD2[j][11] + p_i[0] * (VD2[j][13] - VD2[j][11]);
+                    yi = VD2[j][12] + p_i[0] * (VD2[j][14] - VD2[j][12]);
                     Xi = xi + xc / 2;
                     Yi = -yi + yc / 2;
 
-                    xii = VD2[i][11] + p_i[1] * (VD2[i][13] - VD2[i][11]);
-                    yii = VD2[i][12] + p_i[1] * (VD2[i][14] - VD2[i][12]);
+                    xii = VD2[j][11] + p_i[1] * (VD2[j][13] - VD2[j][11]);
+                    yii = VD2[j][12] + p_i[1] * (VD2[j][14] - VD2[j][12]);
                     Xii = xii + xc / 2;
                     Yii = -yii + yc / 2;
 
@@ -157,23 +197,23 @@ canvasEl.addEventListener('click', (MouseC) => {
                     ctx.lineTo(Xii, Yii);
                     ctx.stroke();
                 } else {
-                    VecUpDown[Index_v[i]][2] = VecUpDown[Index_v[i]][0];
-                    VecUpDown[Index_op[i]][2] = VecUpDown[Index_v[i]][0]; 
-                    VecIndexUp[i]=VecUpDown[Index_v[i]][0];
+                    VecUpDown[Index_v[j]][2] = VecUpDown[Index_v[j]][0];
+                    VecUpDown[Index_op[j]][2] = VecUpDown[Index_v[j]][0]; 
+                    VecIndexUp[j] = VecUpDown[Index_v[j]][0];
                     r = 8;
                     ctx.fillStyle='#ffe4c4';
                     ctx.beginPath();
-                    ctx.ellipse(VD2[i][5],VD2[i][6], r, r, Math.PI/4, 0, 2*Math.PI);
+                    ctx.ellipse(VD2[j][5], VD2[j][6], r, r, Math.PI/4, 0, 2*Math.PI);
                     ctx.fill();
-                    p_i = IntersectCircleLine(VD2[i][3], VD2[i][4], r, VD2[i][7], VD2[i][8], VD2[i][9], VD2[i][10]);
+                    p_i = IntersectCircleLine(VD2[j][3], VD2[j][4], r, VD2[j][7], VD2[j][8], VD2[j][9], VD2[j][10]);
 
-                    xi = VD2[i][7] + p_i[0] * (VD2[i][9] - VD2[i][7]);
-                    yi = VD2[i][8] + p_i[0] * (VD2[i][10] - VD2[i][8]);
+                    xi = VD2[j][7] + p_i[0] * (VD2[j][9] - VD2[j][7]);
+                    yi = VD2[j][8] + p_i[0] * (VD2[j][10] - VD2[j][8]);
                     Xi = xi + xc / 2;
                     Yi = -yi + yc / 2;
 
-                    xii = VD2[i][7] + p_i[1] * (VD2[i][9] - VD2[i][7]);
-                    yii = VD2[i][8] + p_i[1] * (VD2[i][10] - VD2[i][8]);
+                    xii = VD2[j][7] + p_i[1] * (VD2[j][9] - VD2[j][7]);
+                    yii = VD2[j][8] + p_i[1] * (VD2[j][10] - VD2[j][8]);
                     Xii = xii + xc / 2;
                     Yii = -yii + yc / 2;
 
@@ -184,12 +224,15 @@ canvasEl.addEventListener('click', (MouseC) => {
                 }
             }   
         }
-        for(let k = 0; k < (2*(VD2.length)); k++){
-            VecUpDown[k][3]=0;
+        for (let j = 0; j < (2*(VD2.length)); j++){
+            VecUpDown[j][3] = 0;
         } 
     }
 });
 
+// =========================================================================
+// FUNÇÕES DOS BOTÕES
+// =========================================================================
 function save() {
     Cxy.push(VecIndexUp);
     const dados = Cxy;
@@ -202,22 +245,18 @@ function save() {
     Cxy.pop();
 }
 
-function disabled_button(id_button, true_or_false){
-    document.getElementById(id_button).disabled = true_or_false;
-}
-
 function ReadDataDiagram(file) {
     const reader = new FileReader();
     reader.onload = function(event) {
         NewKnot();
         const text = event.target.result;
         const lines = text.split('\n');
-        num_lines = lines.length;
+        let num_lines = lines.length;
 
         for (const line of lines) {
             const parts = line.split(",");
-            q0=parseFloat(parts[0]);
-            q1=parseFloat(parts[1]);
+            let q0 = parseFloat(parts[0]);
+            let q1 = parseFloat(parts[1]);
             Cx.push(q0);
             Cy.push(q1);
             Cxy.push([q0,q1]);
@@ -248,23 +287,23 @@ if (fileInput) {
 }
 
 function SketchDiagram(){
-    for (let i = 0; i < Cx.length; i++) {
-        z1 = Cx[i];
-        w1 = Cy[i];
-        x1 = z1+xc/2;     
-        y1 = -w1+yc/2;
+    for (let j = 0; j < Cx.length; j++) {
+        z1 = Cx[j];
+        w1 = Cy[j];
+        x1 = z1 + xc/2;     
+        y1 = -w1 + yc/2;
         Sx.push(x1); 
         Sy.push(y1);
     }
     
-    for (let k = 0; k < Sx.length; k++) {
+    for (let j = 0; j < Sx.length; j++) {
         ctx.font = "20px serif";  
-        ctx.fillText(k+1, Sx[k] + 5, Sy[k] + 5);
+        ctx.fillText(j+1, Sx[j] + 5, Sy[j] + 5);
         ctx.lineWidth = 2;
         i = i + 1;
         ctx.beginPath();
-        ctx.moveTo(Sx[k], Sy[k]);
-        ctx.lineTo(Sx[k+1], Sy[k+1]);
+        ctx.moveTo(Sx[j], Sy[j]);
+        ctx.lineTo(Sx[j+1], Sy[j+1]);
         ctx.stroke();
     }
     
@@ -274,27 +313,27 @@ function SketchDiagram(){
 
 function YesClick(){
     start_position: while (true) {
-        k=k+1;
+        k = k + 1;
         if (VecUpDown[k][2] != 0) continue start_position;
         break;
     }
-    cont = cont+1;
+    cont = cont + 1;
     if (cont < dNC/2){
-        ponto.style.left = (VD[Index_v[cont]][5]-2)+'px';
-        ponto.style.top = (VD[Index_v[cont]][6]+2)+'px';
+        pontoEl.style.left = (VD[Index_v[cont]][5]-2)+'px';
+        pontoEl.style.top = (VD[Index_v[cont]][6]+2)+'px';
     }
                 
     if (cont == dNC/2){
-        ponto.style.visibility='hidden';
+        pontoEl.style.visibility='hidden';
     }
 
     document.getElementById("WantConnect").textContent = "Would you like to connect vertices " + VecIndex_I[cont] + ' and ' + (VecIndex_I[cont]+1)+"?";
 
-    if (cont==(dNC/2)){
-        document.getElementById("btn_Yes").disabled = true;
-        document.getElementById("btn_No").disabled = true;
+    if (cont == (dNC/2)){
+        disabled_button("btn_Yes", true);
+        disabled_button("btn_No", true);
         document.getElementById("WantConnect").textContent ="";
-        knot_closed=1;
+        knot_closed = 1;
     }
     xa = VD[k][5];
     ya = VD[k][6];
@@ -331,42 +370,42 @@ function YesClick(){
     ctx.lineTo(Xii, Yii);
     ctx.stroke();
     
-    for (let i = k; i < dNC; i++) {
-        if ((VD[i][2] == VD[k][1]) && (VD[i][1] == VD[k][2])){
-            VecUpDown[i][0] = VD[k][2];
-            VecUpDown[i][1] = VD[k][1];
-            VecUpDown[i][2] = VD[k][1];
-            VecUpDown[k][5] = i;
+    for (let j = k; j < dNC; j++) {
+        if ((VD[j][2] == VD[k][1]) && (VD[j][1] == VD[k][2])){
+            VecUpDown[j][0] = VD[k][2];
+            VecUpDown[j][1] = VD[k][1];
+            VecUpDown[j][2] = VD[k][1];
+            VecUpDown[k][5] = j;
         }
-        if (i == dNC-1 && cont==(dNC/2)) {
-            document.getElementById("btn_GroupPresentation").disabled = false;
+        if (j == dNC-1 && cont == (dNC/2)) {
+            disabled_button("btn_GroupPresentation", false);
         } 
     }
 }
 
 function NoClick(){
     start_position: while (true) {
-        k=k+1;
+        k = k + 1;
         if (VecUpDown[k][2] != 0) continue start_position;
         break;
     }
-    cont = cont+1; 
+    cont = cont + 1; 
     if (cont < dNC/2){
-        ponto.style.left = (VD[Index_v[cont]][5]-2)+'px';
-        ponto.style.top = (VD[Index_v[cont]][6]+2)+'px';
+        pontoEl.style.left = (VD[Index_v[cont]][5]-2)+'px';
+        pontoEl.style.top = (VD[Index_v[cont]][6]+2)+'px';
     }
                 
     if (cont == dNC/2){
-        ponto.style.visibility='hidden';
+        pontoEl.style.visibility='hidden';
     }
     
     document.getElementById("WantConnect").textContent = "Would you like to connect vertices " + VecIndex_I[cont] + ' and ' + (VecIndex_I[cont]+1)+"?";
 
-    if (cont==(dNC/2)){
+    if (cont == (dNC/2)){
         document.getElementById("WantConnect").textContent ="";
-        document.getElementById("btn_Yes").disabled = true;
-        document.getElementById("btn_No").disabled = true;
-        knot_closed=1; 
+        disabled_button("btn_Yes", true);
+        disabled_button("btn_No", true);
+        knot_closed = 1; 
     }
     xa = VD[k][5];  
     ya = VD[k][6];
@@ -386,7 +425,7 @@ function NoClick(){
     VecUpDown[k][1] = VD[k][2];
     VecUpDown[k][2] = VD[k][2];
     VecIndexUp.push(VD[k][2]);
-    r=9;
+    r = 9;
     p_i = IntersectCircleLine(VD[k][3], VD[k][4], r, VD[k][11], VD[k][12], VD[k][13], VD[k][14]);
     xi = VD[k][11] + p_i[0] * (VD[k][13] - VD[k][11]);
     yi = VD[k][12] + p_i[0] * (VD[k][14] - VD[k][12]);
@@ -403,82 +442,60 @@ function NoClick(){
     ctx.lineTo(Xii, Yii);
     ctx.stroke();
 
-    for (let i = k; i < dNC; i++) {
-        if ((VD[i][2] == VD[k][1]) && (VD[i][1] == VD[k][2])){
-            VecUpDown[i][0] = VD[k][2];
-            VecUpDown[i][1] = VD[k][1];
-            VecUpDown[i][2] = VD[k][2];
-            VecUpDown[k][5] = i;
+    for (let j = k; j < dNC; j++) {
+        if ((VD[j][2] == VD[k][1]) && (VD[j][1] == VD[k][2])){
+            VecUpDown[j][0] = VD[k][2];
+            VecUpDown[j][1] = VD[k][1];
+            VecUpDown[j][2] = VD[k][2];
+            VecUpDown[k][5] = j;
         }
-        if (i == dNC-1 && cont==(dNC/2)) {
-            document.getElementById("btn_GroupPresentation").disabled = false;
+        if (j == dNC-1 && cont == (dNC/2)) {
+            disabled_button("btn_GroupPresentation", false);
         }
     }
 }
 
 function Alex() {
-    let m = 0;
-    while (m < ChoosesUp.length ) {
-        if (ChoosesUp[m] == VecIndex_I[m]) {
+    let loop_m = 0;
+    while (loop_m < ChoosesUp.length ) {
+        if (ChoosesUp[loop_m] == VecIndex_I[loop_m]) {
             document.getElementById("btn_Yes").click();
         } else {
             document.getElementById("btn_No").click();
         }
-        m++;
+        loop_m++;
     }
 }
 
-disabled_button("btn_Yes", "true");
-disabled_button("btn_No", "true");
-disabled_button("btn_GroupPresentation", "true");
-ponto.style.visibility= 'hidden';
-
-VD=[];
-var VecUpDown = new Array(6);
-VecIndex_I=[];
-VecIndexUp=[];
-var dNC;
-k=-1;
-var cont=0;
-KnotMatrixAux = [];
-KnotMatrix = [];
-i = 0; m = 0; let newKnot= 1; let z1, w1; 
-Sx = []; Sy = []; Cx = []; Cy = []; Cxy= [];
-knot_closed=0;
-Index_v=[];
-Index_op=[];
-
 function NewKnot(){
     ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
-    i = 0; m = 0; newKnot= 1; 
-    Sx = []; Sy = []; Cx = []; Cy = []; Cxy= [];
-    knot_closed=0; 
-    KnotMatrixAux=[];
-    OK=0;
-    disabled_button("btn_Yes", "true"); 
-    disabled_button("btn_No", "true");
-    disabled_button("btn_GroupPresentation", "true");
-    ponto.style.visibility= 'hidden';
-
-    VD=[];
-    VecUpDown = [];
-    VecIndex_I=[];
-    VecIndexUp=[];
-    Index_v=[];
-    Index_op=[];
-    dNC = undefined;
-    k=-1;
-    cont = 0;
+    i = 0; m = 0; newKnot = 1; 
+    Sx = []; Sy = []; Cx = []; Cy = []; Cxy = [];
+    knot_closed = 0; 
     KnotMatrixAux = [];
-    KnotMatrix = [];
-    ctx.fillStyle='blue';
+    OK = 0;
+    disabled_button("btn_Yes", true); 
+    disabled_button("btn_No", true);
+    disabled_button("btn_GroupPresentation", true);
+    pontoEl.style.visibility = 'hidden';
+
+    VD = [];
+    VD2 = [];
+    VecUpDown = new Array(6);
+    VecIndex_I = [];
+    VecIndexUp = [];
+    Index_v = [];
+    Index_op = [];
+    dNC = undefined;
+    k = -1;
+    cont = 0;
+    ctx.fillStyle = 'blue';
     document.getElementById("demo").innerHTML = ""; 
     document.getElementById("WantConnect").textContent = "";
 }
 
-const ponto = document.querySelector('#ponto');
 function blink() {
-    ponto.style.opacity = ponto.style.opacity === '1' ? '0' : '1';
+    pontoEl.style.opacity = pontoEl.style.opacity === '1' ? '0' : '1';
 }
 setInterval(blink, 500);
 
