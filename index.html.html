@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Knot Group Presentation via PyScript</title>
+    
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.21.3/full/pyodide.js"></script>
+    <link rel="stylesheet" href="https://pyscript.net/releases/2023.03.1/pyscript.css" />
+    <script defer src="https://pyscript.net/releases/2023.03.1/pyscript.js"></script>
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <link rel="stylesheet" href="style.css"/>
+    <script src="intersect_circle_line.js"></script>
+    <script src="DiagramKnot.js"></script>
+</head>
+<body>
+    <py-script src="./main.py"></py-script>
+
+    <py-config>
+        packages = ["sympy"]
+    </py-config>
+
+<div id="id_div_container" class="div_container">
+    <div id="ponto"></div>
+
+    <div id="myDIV" style="visibility: hidden;">    
+        Instruções:
+        1. Desenhe o diagrama do nó com cliques do botão esquerdo do mouse.
+        2. Mova o mouse até o primeiro ponto para fechar o diagrama.
+        3. Escolha quais arcos passam por cima em cada cruzamento.
+        4. Clique no botão "Group Presentation" para calcular a Apresentação de Wirtinger.
+    </div>
+    
+    <canvas id="canvas_drawing" width="1155" height="650"></canvas>
+    
+    <div class="column" style="background-color:#aaa;">
+        <button id="btn_GroupPresentation" py-click="KnotGroup_OnClk()" type="button" class="btn btn-primary">
+            Group Presentation
+        </button>
+        <button id="btn_LoadDiagram"  onclick="LoadDiagram()" type="button" class="btn btn-primary">Load diagram</button>
+        <button id="btn_NewKnot"       onclick="NewKnot()"     type="button" class="btn btn-primary">New knot</button>
+        <button id="btn_save"          onclick="save()"       type="button" class="btn btn-primary">Save diagram</button>
+        <button id="btn_help"          onclick="help()"       type="button" class="btn" style="float: right;">Help</button>
+        <input type="file" id="file_data_diagram" accept=".txt" style="display:none"/>
+        <h5 id="text_coord_xy">(x,y)</h5>
+    </div>
+
+    <div class="column2" style="background-color:#bbb;">
+        <h4 id="WantConnect"></h4>
+    </div>
+
+    <div class="column3" style="background-color:#aaa;">
+        <button id="btn_Yes" onclick="YesClick()" type="button" class="btn btn-primary">Yes</button>
+        <button id="btn_No"  onclick="NoClick()"  type="button" class="btn btn-primary">No</button>
+    </div>
+
+    <div style="clear: both;"></div>
+    
+    <div id="demo" style="margin-top: 20px; font-size: 18px; font-weight: bold; text-align: center;"></div>
+</div>
+
+<script>
+let canvasEl = document.querySelector('#canvas_drawing');
+let ctx = canvasEl.getContext('2d');
+ctx.fillStyle='blue';
+let OK=0;
+xc = canvasEl.clientWidth;
+yc = canvasEl.clientHeight;
+
+canvasEl.addEventListener('mousemove', (MouseM) => {
+    xM = MouseM.offsetX;
+    yM = MouseM.offsetY;
+    document.getElementById("text_coord_xy").innerHTML = "(x,y)= (" +(xM - xc / 2 ) +"," + (-yM +yc /2 ) +")";
+});
+
+// Inicialização de variáveis globais
+disabled_button("btn_Yes", "true");
+disabled_button("btn_No", "true");
+disabled_button("btn_GroupPresentation", "true");
+ponto.style.visibility= 'hidden';
+
+VD=[];
+var VecUpDown = new Array(6);
+VecIndex_I=[];
+VecIndexUp=[];
+var dNC;
+k=-1;
+var cont=0;
+i = 0; m = 0; let newKnot= 1;
+Sx = []; Sy = []; Cx = []; Cy = []; Cxy= [];
+knot_closed=0;
+Index_v=[]; Index_op=[];
+
+function disabled_button(id_button, true_or_false){
+    document.getElementById(id_button).disabled = true_or_false;
+}
+
+function NewKnot(){
+    ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+    i = 0; m = 0; newKnot= 1; 
+    Sx = []; Sy = []; Cx = []; Cy = []; Cxy= [];
+    knot_closed=0; 
+    disabled_button("btn_Yes", "true"); 
+    disabled_button("btn_No", "true");
+    disabled_button("btn_GroupPresentation", "true");
+    ponto.style.visibility= 'hidden';
+    VD=[]; VecUpDown = []; VecIndex_I=[]; VecIndexUp=[]; Index_v=[]; Index_op=[];
+    k=-1; cont = 0;
+    document.getElementById("demo").innerHTML = ""; 
+    document.getElementById("WantConnect").textContent = "";
+}
+</script>
+</body>
+</html>
