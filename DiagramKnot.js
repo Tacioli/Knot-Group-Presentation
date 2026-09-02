@@ -50,7 +50,7 @@ function DiagramKnot() {//this function close the knot and start the questions a
                     
                     Paramt1.push([t1, i+1, j+1, z1, w1, xa, ya, a1, b1, a2, b2, c1, d1, c2, d2]); //store all information of each intersection point
                     r = 8;
-                    ctx.fillStyle='#ffe4c4';
+                    ctx.fillStyle='#E7EEF4';
                     ctx.beginPath();
                     ctx.ellipse(xa,ya, r, r,  Math.PI/4, 0, 2*Math.PI);  //clears a region around the intersection
                     ctx.fill();
