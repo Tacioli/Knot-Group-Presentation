@@ -85,7 +85,7 @@
 // =========================================================================
 var canvasEl = document.querySelector('#canvas_drawing');
 var ctx = canvasEl.getContext('2d');
-ctx.fillStyle = 'black';
+ctx.fillStyle = 'blue';
 var xc = canvasEl.clientWidth;
 var yc = canvasEl.clientHeight;
 
@@ -180,7 +180,7 @@ canvasEl.addEventListener('click', (MouseC) => {
                     VecUpDown[Index_op[j]][2] = VecUpDown[Index_v[j]][1];
                     VecIndexUp[j] = VecUpDown[Index_v[j]][1];
                     r = 8;
-                    ctx.fillStyle='#E7EEF4';
+                    ctx.fillStyle='green';
                     ctx.beginPath();
                     ctx.ellipse(VD2[j][5], VD2[j][6], r, r, Math.PI/4, 0, 2*Math.PI);
                     ctx.fill();
@@ -205,10 +205,10 @@ canvasEl.addEventListener('click', (MouseC) => {
                     VecUpDown[Index_op[j]][2] = VecUpDown[Index_v[j]][0]; 
                     VecIndexUp[j] = VecUpDown[Index_v[j]][0];
                     r = 8;
-                    ctx.fillStyle='#E7EEF4';
+                    ctx.Style='green';
                     ctx.beginPath();
                     ctx.ellipse(VD2[j][5], VD2[j][6], r, r, Math.PI/4, 0, 2*Math.PI);
-                    ctx.fill();
+                    ctx.();
                     p_i = IntersectCircleLine(VD2[j][3], VD2[j][4], r, VD2[j][7], VD2[j][8], VD2[j][9], VD2[j][10]);
 
                     xi = VD2[j][7] + p_i[0] * (VD2[j][9] - VD2[j][7]);
