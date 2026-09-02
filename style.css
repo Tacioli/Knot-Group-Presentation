@@ -3,34 +3,37 @@ canvas {
     display: block;
     background-color:#E7EEF4;
     margin-right: auto;
-    }
+}
 
 * {
     box-sizing: border-box;
 }
-/* Create two equal columns that floats next to each other */
-.column {/* botoes Alex Poly; New knot; Save ...  */
 
-    float: center;
+/* Create two equal columns that floats next to each other */
+.column { /* botoes Alex Poly; New knot; Save ...  */
+    margin: 0 auto;
     width: 1159px;
     padding: 10px;
     height: 50px; /* Should be removed. Only for demonstration */
     text-align: left;
 }
-.column2 {/* texto Do you want to link...?*/
+
+.column2 { /* texto Do you want to link...?*/
     float: left;
     width: 1000px;
     padding: 10px;
     height: 50px; /* Should be removed. Only for demonstration */
     text-align: left;
 }
-.column3 {/*botoes Yes No*/
+
+.column3 { /*botoes Yes No*/
     float: left;
     width: 159px;
     padding: 10px;
     height: 50px; /* Should be removed. Only for demonstration */
     text-align: center;
 }
+
 #div_container {
     width: 1070px;
     height:600px;
@@ -38,6 +41,7 @@ canvas {
     margin: 0px auto;
     text-align: center;
 }
+
 #Dialog_closeKnot{
     margin: 0;
     position: absolute;
@@ -52,17 +56,18 @@ canvas {
     height: 500px;
     background-color: lightblue;
     white-space: pre-line;
-  } 
+} 
 
-  #id_div_container {
+#id_div_container {
     position:absolute;
     left: 5px;
     padding-top: 5px;
-  } 
-  #ponto {
+} 
+
+#ponto {
     width: 6px;
     height: 6px;
     background-color: red;
     border-radius: 100%;
     position: relative;
-  }
+}
