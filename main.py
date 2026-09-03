@@ -141,7 +141,7 @@ def KnotGroup_OnClk():
     raw_tex_escaped = raw_tex.replace("`", "\\`").replace('"', '&quot;').replace("\n", "\\n")
 
     latex_output = f"""
-    <div style="width: 1155px; max-width: 1155px; border: 1px solid #cccccc; padding: 15px; border-radius: 6px; background-color: #f9f9f9; position: relative; box-sizing: border-box; margin-top: 50px; margin-left: auto; margin-right: auto;">
+    <div style="width: 1155px; max-width: 1155px; border: 1px solid #cccccc; padding: 15px; border-radius: 6px; background-color: #f9f9f9; position: relative; box-sizing: border-box; margin-top: 52px; margin-left: auto; margin-right: auto;">
         
         <!-- Botão de Copiar (Posicionado fixo no canto superior direito) -->
         <button onclick="navigator.clipboard.writeText(`{raw_tex_escaped}`); alert('LaTeX code copied!')" 
