@@ -123,20 +123,64 @@ def KnotGroup_OnClk():
                 break
 
     # === FORMATAÇÃO DA SAÍDA EM LATEX ===
+    # === FORMATAÇÃO DA SAÍDA EM LATEX ===
     latex_geradores = ", ".join(geradores)
     latex_relacoes = ", ".join(relacoes)
+
     latex_grupo = f"\\[ \\pi_1(S^3 \\setminus K) = \\langle {latex_geradores} \\mid {latex_relacoes} \\rangle \\]"
-    
+
     # Transforma a variável matemática do SymPy em string LaTeX
     latex_poly = sympy.latex(poly_val)
-    
+
+    # String bruta com todo o código LaTeX sem os delimitadores para cópia limpa
+    raw_tex = f"""\\pi_1(S^3 \\setminus K) = \\langle {latex_geradores} \\mid {latex_relacoes} \\rangle
+    \\text{{Knot Determinant: }} D = {det_val}
+    \\text{{Alexander Polynomial: }} \\Delta(t) = {latex_poly}"""
+
+    # Escapa caracteres para evitar conflitos no JavaScript
+    raw_tex_escaped = raw_tex.replace("`", "\\`").replace('"', '&quot;').replace("\n", "\\n")
+
     latex_output = f"""
-    {latex_grupo}
-    \\[ \\text{{Knot Determinant: }} D = {det_val} \\]
-    \\[ \\text{{Alexander Polynomial: }} \\Delta(t) = {latex_poly} \\]
+    <div style="width: 1155px; max-width: 1155px; border: 1px solid #cccccc; padding: 15px; border-radius: 6px; background-color: #f9f9f9; position: relative; box-sizing: border-box; margin-top: 50px; margin-left: auto; margin-right: auto;">
+        
+        <!-- Botão de Copiar (Posicionado fixo no canto superior direito) -->
+        <button onclick="navigator.clipboard.writeText(`{raw_tex_escaped}`); alert('LaTeX code copied!')" 
+                style="position: absolute; top: 10px; right: 10px; z-index: 10; padding: 6px 12px; font-size: 12px; cursor: pointer; border-radius: 4px; border: 1px solid #aaa; background: #ffffff;">
+            Copy .tex
+        </button>
+
+        <!-- Container com Largura Fixa e Rolagem Horizontal -->
+        <div style="width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; padding-top: 25px; padding-bottom: 10px;">
+            {latex_grupo}
+            \\[ \\text{{Knot Determinant: }} D = {det_val} \\]
+            \\[ \\text{{Alexander Polynomial: }} \\Delta(t) = {latex_poly} \\]
+        </div>
+
+    </div>
     """
 
     document.getElementById("demo").innerHTML = latex_output
 
     if hasattr(window, "MathJax"):
         window.MathJax.typesetPromise()
+      
+           
+    # === FORMATAÇÃO DA SAÍDA EM LATEX ===
+    #latex_geradores = ", ".join(geradores)
+    #latex_relacoes = ", ".join(relacoes)
+    #original latex_grupo = f"\\[ \\pi_1(S^3 \\setminus K) = \\langle {latex_geradores} \\mid {latex_relacoes} \\rangle \\]"
+    
+    
+    # Transforma a variável matemática do SymPy em string LaTeX
+    #latex_poly = sympy.latex(poly_val)
+    
+    #latex_output = f"""
+    #{latex_grupo}
+    #\\[ \\text{{Knot Determinant: }} D = {det_val} \\]
+    #\\[ \\text{{Alexander Polynomial: }} \\Delta(t) = {latex_poly} \\]
+    #"""
+
+    #document.getElementById("demo").innerHTML = latex_output
+
+    #if hasattr(window, "MathJax"):
+    #    window.MathJax.typesetPromise()
