@@ -24,15 +24,17 @@ canvas {
 
 .column2 { /* texto Do you want to link...?*/
     float: left;
-    width: 998px;
+    width: 1002px;
     padding: 10px;
     height: 50px; /* Should be removed. Only for demonstration */
     text-align: left;
 }
 
 .column3 { /*botoes Yes No*/
-    float: left;
-    width: 159px;
+    float: right;
+    margin-right: 7px;
+    margin-top: -0px;
+    width: 156px;
     padding: 10px;
     height: 50px; /* Should be removed. Only for demonstration */
     text-align: center;
