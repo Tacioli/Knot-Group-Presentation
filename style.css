@@ -10,17 +10,21 @@ canvas {
 }
 
 /* Create two equal columns that floats next to each other */
-.column { /* botoes Alex Poly; New knot; Save ...  */
-    margin: 0 auto;
-    width: 1159px;
+
+.column { /* botoes Alex Poly; New knot; Save ... */
+    margin-top: 0;
+    margin-right: auto;
+    margin-bottom: 0;
+    margin-left: 0px; /* <--- ALTERE ESTE VALOR para ajustar a distância da esquerda */
+    width: 1157.5px;
     padding: 10px;
-    height: 50px; /* Should be removed. Only for demonstration */
+    height: 50px;
     text-align: left;
 }
 
 .column2 { /* texto Do you want to link...?*/
     float: left;
-    width: 1000px;
+    width: 998px;
     padding: 10px;
     height: 50px; /* Should be removed. Only for demonstration */
     text-align: left;
