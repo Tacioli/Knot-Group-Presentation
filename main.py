@@ -2,27 +2,34 @@ from js import document, window, Blob, URL
 from pyodide.ffi import to_js, create_proxy
 import sympy
 
-# === NOVA FUNÇÃO GLOBAL PARA DOWNLOAD ===
-# Esta função precisa ficar fora do evento de clique para ser registrada apenas uma vez
+# =========================================================================
+# FUNÇÃO GLOBAL PARA DOWNLOAD DO ARQUIVO .TXT COM OS INVARIANTES (LATEX)
+# =========================================================================
 def execute_download(text):
-    # Converte as opções do arquivo para o formato JavaScript
+    # Converte as opções do arquivo para o formato que o JavaScript entende
     options = to_js({"type": "text/plain"})
-    # Cria o arquivo de texto
+    
+    # Cria o arquivo (Blob) com o texto
     blob = Blob.new([text], options)
-    # Cria a rotina invisível de download
+    
+    # Cria um link de download temporário e invisível
     url = URL.createObjectURL(blob)
     link = document.createElement("a")
     link.href = url
     link.download = "knot_invariants.txt"
+    
+    # Simula o clique no link para baixar o arquivo
     document.body.appendChild(link)
     link.click()
+    
+    # Limpa a memória e remove o link do documento
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
 
 # Expõe a função para o objeto 'window' global do JavaScript.
 # Isso permite que o botão HTML chame a função Python pelo 'onclick'.
 window.download_invariants_tex = create_proxy(execute_download)
-# ========================================
+# =========================================================================
 
 def KnotGroup_OnClk():
     from js import VecUpDown, VD
@@ -159,16 +166,16 @@ def KnotGroup_OnClk():
 \\text{{Knot Determinant: }} D = {det_val}
 \\text{{Alexander Polynomial: }} \\Delta(t) = {latex_poly}"""
 
-    # Escapa caracteres para evitar conflitos no JavaScript
+    # Escapa caracteres para evitar conflitos no JavaScript ao repassar a string
     raw_tex_escaped = raw_tex.replace("`", "\\`").replace('"', '&quot;').replace("\n", "\\n")
 
     latex_output = f"""
     <div style="width: 1155px; max-width: 1155px; border: 1px solid #cccccc; padding: 15px; border-radius: 6px; background-color: #f9f9f9; position: relative; box-sizing: border-box; margin-top: 52px; margin-left: auto; margin-right: auto;">
         
-        <!-- Botão de Salvar alterado para chamar a função de download -->
+        <!-- Botão de Salvar Invariantes -->
         <button onclick="window.download_invariants_tex(`{raw_tex_escaped}`)" 
                 style="position: absolute; top: 10px; right: 10px; z-index: 10; padding: 6px 12px; font-size: 12px; cursor: pointer; border-radius: 4px; border: 1px solid #aaa; background: #ffffff;">
-            Save .tex
+            Save invariants
         </button>
 
         <!-- Container com Largura Fixa e Rolagem Horizontal -->
