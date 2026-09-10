@@ -166,8 +166,8 @@ def KnotGroup_OnClk():
 \\text{{Knot Determinant: }} D = {det_val}
 \\text{{Alexander Polynomial: }} \\Delta(t) = {latex_poly}"""
 
-    # Escapa caracteres para evitar conflitos no JavaScript ao repassar a string
-    raw_tex_escaped = raw_tex.replace("`", "\\`").replace('"', '&quot;').replace("\n", "\\n")
+    # Escapa caracteres para evitar conflitos no JavaScript ao repassar a string (CORREÇÃO APLICADA AQUI)
+    raw_tex_escaped = raw_tex.replace("\\", "\\\\").replace("`", "\\`").replace('"', '&quot;').replace("\n", "\\n")
 
     latex_output = f"""
     <div style="width: 1155px; max-width: 1155px; border: 1px solid #cccccc; padding: 15px; border-radius: 6px; background-color: #f9f9f9; position: relative; box-sizing: border-box; margin-top: 52px; margin-left: auto; margin-right: auto;">
