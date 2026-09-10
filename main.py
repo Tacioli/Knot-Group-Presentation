@@ -1,5 +1,28 @@
-from js import document, window
+from js import document, window, Blob, URL
+from pyodide.ffi import to_js, create_proxy
 import sympy
+
+# === NOVA FUNÇÃO GLOBAL PARA DOWNLOAD ===
+# Esta função precisa ficar fora do evento de clique para ser registrada apenas uma vez
+def execute_download(text):
+    # Converte as opções do arquivo para o formato JavaScript
+    options = to_js({"type": "text/plain"})
+    # Cria o arquivo de texto
+    blob = Blob.new([text], options)
+    # Cria a rotina invisível de download
+    url = URL.createObjectURL(blob)
+    link = document.createElement("a")
+    link.href = url
+    link.download = "knot_invariants.txt"
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+
+# Expõe a função para o objeto 'window' global do JavaScript.
+# Isso permite que o botão HTML chame a função Python pelo 'onclick'.
+window.download_invariants_tex = create_proxy(execute_download)
+# ========================================
 
 def KnotGroup_OnClk():
     from js import VecUpDown, VD
@@ -123,7 +146,6 @@ def KnotGroup_OnClk():
                 break
 
     # === FORMATAÇÃO DA SAÍDA EM LATEX ===
-    # === FORMATAÇÃO DA SAÍDA EM LATEX ===
     latex_geradores = ", ".join(geradores)
     latex_relacoes = ", ".join(relacoes)
 
@@ -134,8 +156,8 @@ def KnotGroup_OnClk():
 
     # String bruta com todo o código LaTeX sem os delimitadores para cópia limpa
     raw_tex = f"""\\pi_1(S^3 \\setminus K) = \\langle {latex_geradores} \\mid {latex_relacoes} \\rangle
-    \\text{{Knot Determinant: }} D = {det_val}
-    \\text{{Alexander Polynomial: }} \\Delta(t) = {latex_poly}"""
+\\text{{Knot Determinant: }} D = {det_val}
+\\text{{Alexander Polynomial: }} \\Delta(t) = {latex_poly}"""
 
     # Escapa caracteres para evitar conflitos no JavaScript
     raw_tex_escaped = raw_tex.replace("`", "\\`").replace('"', '&quot;').replace("\n", "\\n")
@@ -143,10 +165,10 @@ def KnotGroup_OnClk():
     latex_output = f"""
     <div style="width: 1155px; max-width: 1155px; border: 1px solid #cccccc; padding: 15px; border-radius: 6px; background-color: #f9f9f9; position: relative; box-sizing: border-box; margin-top: 52px; margin-left: auto; margin-right: auto;">
         
-        <!-- Botão de Copiar (Posicionado fixo no canto superior direito) -->
-        <button onclick="navigator.clipboard.writeText(`{raw_tex_escaped}`); alert('LaTeX code copied!')" 
+        <!-- Botão de Salvar alterado para chamar a função de download -->
+        <button onclick="window.download_invariants_tex(`{raw_tex_escaped}`)" 
                 style="position: absolute; top: 10px; right: 10px; z-index: 10; padding: 6px 12px; font-size: 12px; cursor: pointer; border-radius: 4px; border: 1px solid #aaa; background: #ffffff;">
-            Copy .tex
+            Save .tex
         </button>
 
         <!-- Container com Largura Fixa e Rolagem Horizontal -->
@@ -163,24 +185,3 @@ def KnotGroup_OnClk():
 
     if hasattr(window, "MathJax"):
         window.MathJax.typesetPromise()
-      
-           
-    # === FORMATAÇÃO DA SAÍDA EM LATEX ===
-    #latex_geradores = ", ".join(geradores)
-    #latex_relacoes = ", ".join(relacoes)
-    #original latex_grupo = f"\\[ \\pi_1(S^3 \\setminus K) = \\langle {latex_geradores} \\mid {latex_relacoes} \\rangle \\]"
-    
-    
-    # Transforma a variável matemática do SymPy em string LaTeX
-    #latex_poly = sympy.latex(poly_val)
-    
-    #latex_output = f"""
-    #{latex_grupo}
-    #\\[ \\text{{Knot Determinant: }} D = {det_val} \\]
-    #\\[ \\text{{Alexander Polynomial: }} \\Delta(t) = {latex_poly} \\]
-    #"""
-
-    #document.getElementById("demo").innerHTML = latex_output
-
-    #if hasattr(window, "MathJax"):
-    #    window.MathJax.typesetPromise()
